@@ -1,5 +1,4 @@
 import numpy as np
-import pylab
 import csv
 from sklearn.svm import SVC
 from sklearn.cross_validation import train_test_split
@@ -72,25 +71,21 @@ classifiers = OneVsRestClassifier(clf, n_jobs=-1)
 classifiers.fit(gestures_X_train, gestures_y_train)
 
 #score each gesture by using the probability of belonging to its class
-probs = []
-logs = []
+splits=[0, 0.1, 0.25, 0.35, 0.5, 0.8, 1.1, 1.75, 3.3, 5, 10]
 scores = []
-index = 0
 for i in range(0,len(gestures_y)):
   #pick the estimator for the correct class
   class_estimator = classifiers.estimators_[gestures_y[i]-1]
   #get the probability of belonging to that class (being labeled 1)
-  prob = class_estimator.predict_proba(gestures_X_scaled[i])[0][1]
   log = 1/-class_estimator.predict_log_proba(gestures_X_scaled[i])[0][1]
-  scores.append([prob, log])
-  logs.append(log)
-  probs.append(prob)
-
-pylab.scatter(probs, logs, s=3)
-pylab.show()
+  score = 0
+  for j in range(0,len(splits)):
+    if log >= splits[j]:
+      score = j
+  scores.append(score)
 
 with open('s1svm_scores.csv', 'wb') as csvfile:
     scorewriter = csv.writer(csvfile, delimiter=',',
                             quotechar='"', quoting=csv.QUOTE_MINIMAL)
     for score in scores:
-      scorewriter.writerow(score)
+      scorewriter.writerow([score])
