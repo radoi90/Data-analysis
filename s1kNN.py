@@ -33,7 +33,6 @@ for n in range(2,10):
 	knn = KNeighborsClassifier(n_neighbors=n)
 	#use one vs. rest strategy
 	classifiers = OneVsRestClassifier(knn, n_jobs=-1)
-	classifiers.fit(gestures_X_train, gestures_y_train)
 
 	#get the cross validated score
 	scr = cross_validation.cross_val_score(classifiers, gestures_X_train, gestures_y_train, cv = 5)
