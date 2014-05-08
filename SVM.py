@@ -10,7 +10,7 @@ from sklearn.multiclass import OneVsRestClassifier
 data = []
 
 #read data from csv file
-with open('correct_gestures_plain.csv', 'rb') as csvfile:
+with open('correct_gestures_plus.csv', 'rb') as csvfile:
   datareader = csv.reader(csvfile, delimiter=',')
   for row in datareader:
     data.append(map(float, row))
@@ -24,9 +24,8 @@ gestures_X_scaled = preprocessing.scale(gestures_X)
 
 #split the data in training and test sets
 gestures_X_train, gestures_X_test, gestures_y_train, gestures_y_test = \
-  train_test_split(gestures_X_scaled, gestures_y, test_size=0.1, random_state=0)
+  train_test_split(gestures_X_scaled, gestures_y, test_size=0.2, random_state=0)
 
-"""
 # Set the parameters by cross-validation
 tuned_parameters = [{'kernel': ['rbf'], 'gamma': [1e-3, 1e-4],
                      'C': [1, 10, 100, 1000]},
@@ -63,10 +62,10 @@ for score in scores:
     y_true, y_pred = gestures_y_test, clf.predict(gestures_X_test)
     print(classification_report(y_true, y_pred))
     print()
-"""
 
-clf = SVC(C=1000, kernel='poly', coef0=1, gamma=0.0001, degree=4,
-            probability=True)
+clf = clf.best_estimator_
+clf.set_params(probability=True)
+
 classifiers = OneVsRestClassifier(clf, n_jobs=-1)
 classifiers.fit(gestures_X_train, gestures_y_train)
 
@@ -84,7 +83,7 @@ for i in range(0,len(gestures_y)):
       score = j
   scores.append(score)
 
-with open('s1svm_scores.csv', 'wb') as csvfile:
+with open('s2svm_scores.csv', 'wb') as csvfile:
     scorewriter = csv.writer(csvfile, delimiter=',',
                             quotechar='"', quoting=csv.QUOTE_MINIMAL)
     for score in scores:
