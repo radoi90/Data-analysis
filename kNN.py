@@ -20,11 +20,11 @@ data = np.array(data)
 #scale data s.t all features have zero mean and unit variance
 gestures_X = data[:,1:]
 gestures_y = np.array(map(int,data[:,0]))
-#gestures_X_scaled = preprocessing.scale(gestures_X)
+gestures_X_scaled = preprocessing.scale(gestures_X)
 
 #split the data in training and test sets
 gestures_X_train, gestures_X_test, gestures_y_train, gestures_y_test = \
-	cross_validation.train_test_split(gestures_X, gestures_y, test_size=0.2, random_state=0)
+	cross_validation.train_test_split(gestures_X_scaled, gestures_y, test_size=0.2, random_state=0)
 
 # Set the parameters by cross-validation
 tuned_parameters = [{'n_neighbors': range(2,11)}]
