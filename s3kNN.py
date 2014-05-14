@@ -3,7 +3,7 @@ import csv
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.grid_search import GridSearchCV
 from sklearn.metrics import classification_report
-from sklearn import cross_validation
+from sklearn.cross_validation import train_test_split
 from sklearn import preprocessing
 from sklearn.multiclass import OneVsRestClassifier
 
@@ -25,7 +25,7 @@ gestures_X_scaled = preprocessing.scale(gestures_X)
 
 #split the data in training and test sets
 gestures_X_train, gestures_X_test, gestures_y_train, gestures_y_test = \
-	cross_validation.train_test_split(gestures_X, gestures_y, test_size=0.2, random_state=0)
+	train_test_split(gestures_X_scaled, gestures_y, test_size=0.2, random_state=0)
 
 # Set the parameters by cross-validation
 tuned_parameters = [{'n_neighbors': range(2,11)}]
@@ -63,17 +63,13 @@ clf = clf.best_estimator_
 classifiers = OneVsRestClassifier(clf, n_jobs=-1)
 classifiers.fit(gestures_X_train, gestures_y_train)
 
-gestures_X = np.vstack((gestures_X, badData[:,1:]))
-gestures_y = np.hstack((gestures_y, np.array(map(int,badData[:,0]))))
-print gestures_X.shape, gestures_y.shape
-
 #score each gesture by using the probability of belonging to its class
 scores = []
 for i in range(0,len(gestures_y)):
 	#pick the estimator for the correct class
 	class_estimator = classifiers.estimators_[gestures_y[i]-1]
 	#get the probability of belonging to that class (being labeled 1)
-	prob = class_estimator.predict_proba(gestures_X[i])[0][1]
+	prob = class_estimator.predict_proba(gestures_X_scaled[i])[0][1]
 	scores.append(10*prob)
 
 with open('s3knn_scores.csv', 'wb') as csvfile:
